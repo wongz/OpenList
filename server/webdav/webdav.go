@@ -6,6 +6,7 @@
 package webdav // import "golang.org/x/net/webdav"
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -349,6 +350,10 @@ func (h *Handler) handlePut(w http.ResponseWriter, r *http.Request) (status int,
 	}
 	if reqPath == "" {
 		return http.StatusMethodNotAllowed, nil
+	}
+	if r.ContentLength == 0 {
+		r.Body = io.NopCloser(bytes.NewReader([]byte("\n")))
+		r.ContentLength = 1
 	}
 	release, status, err := h.confirmLocks(r, reqPath, "")
 	if err != nil {
